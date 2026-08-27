@@ -63,81 +63,6 @@ The application analyzes requirements, detects missing information, asks clarifi
 ## Human-in-the-Loop
 - When clarification is required, LangGraph uses 'interrupt()' to pause the workflow. The user provides the missing information through the UI, and the workflow resumes using the same thread ID through '/resume-story'.
 
-## Workflow
-
-                   User
-  │
-  ▼
-React Frontend
-  │
-  │ Enter Feature Idea
-  ▼
-POST /generate-story
-  │
-  ▼
-FastAPI Backend
-  │
-  ▼
-LangGraph Workflow
-  │
-  ▼
-Analyze Requirements (LLM #1)
-  │
-  ▼
-Structured Requirements
-  │
-  ▼
-Requirements Complete?
-  │
-  ├────────────── No ──────────────┐
-  │                                ▼
-  │                         Ask Clarification
-  │                                │
-  │                                ▼
-  │                           interrupt()
-  │                                │
-  │                                ▼
-  │                         User Answers
-  │                                │
-  │                                ▼
-  │                         /resume-story
-  │                                │
-  │                                ▼
-  │                    Incorporate User Response
-  │                                │
-  │                                ▼
-  │                         Generate Jira Story
-  │
-  └────────────── Yes ─────────────┐
-                                   ▼
-                           Large Feature?
-                              │       │
-                         Small │       │ Large
-                              │       │
-                              └───┬───┘
-                                  ▼
-                       Generate Jira Story
-                              (LLM #2)
-                                  │
-                                  ▼
-                    StoryGenerationResult
-                              │
-                              ▼
-                       FastAPI Response
-                              │
-                              ▼
-                       React Frontend
-                              │
-                              ▼
-                    Requirements + Stories
-                              │
-                              ▼
-                       Human Review / Edit
-                              │
-                              ▼
-                            Approve
-
-
 
 ## Project structure
 jira-story-generator/
@@ -163,10 +88,6 @@ jira-story-generator/
 │
 ├── .gitignore
 └── README.md
-
-
-
-
 
 
 ## Architecture diagram
