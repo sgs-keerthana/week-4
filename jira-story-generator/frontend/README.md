@@ -65,81 +65,80 @@ The application analyzes requirements, detects missing information, asks clarifi
 
 ## Workflow
 
-                    USER
-                      │
-                      ▼
-             React Frontend
-                      │
-             Enter Feature Idea
-                      │
-                      ▼
-             Generate Jira Story
-                      │
-                      │ POST /generate-story
-                      ▼
-              FastAPI Backend
-                      │
-                      ▼
-              LangGraph Workflow
-                      │
-                      ▼
-          ┌──────────────────────┐
-          │ Analyze Requirements  │
-          │      LLM #1           │
-          └──────────┬───────────┘
-                     │
-                     ▼
-             Requirements Object
-                     │
-                     ▼
-           Is information complete?
-                /          \
-              NO            YES
-              │              │
-              ▼              ▼
-       Clarification      Is it a
-          Question       large feature?
-              │           /       \
-              │         YES        NO
-              │          │          │
-              ▼          ▼          ▼
-        interrupt()   Generate    Generate
-              │        Stories     Story
-              │          │          │
-              ▼          └────┬─────┘
-        User answers          │
-              │               │
-              ▼               │
-       /resume-story          │
-              │               │
-              ▼               │
-   Incorporate User Response  │
-              │               │
-              └───────┬───────┘
-                      ▼
-              Generate Jira Story
-                    LLM #2
-                      │
-                      ▼
-            StoryGenerationResult
-                      │
-                      ▼
-                FastAPI Response
-                      │
-                      ▼
-                React Frontend
-                      │
-                      ▼
-                Requirements UI
-                      │
-                      ▼
-                  Story UI
-                      │
-                      ▼
-              Human Review/Edit
-                      │
-                      ▼
-                   Approve
+ User
+  │
+  ▼
+React Frontend
+  │
+  │ Enter Feature Idea
+  ▼
+POST /generate-story
+  │
+  ▼
+FastAPI Backend
+  │
+  ▼
+LangGraph Workflow
+  │
+  ▼
+Analyze Requirements (LLM #1)
+  │
+  ▼
+Structured Requirements
+  │
+  ▼
+Requirements Complete?
+  │
+  ├────────────── No ──────────────┐
+  │                                ▼
+  │                         Ask Clarification
+  │                                │
+  │                                ▼
+  │                           interrupt()
+  │                                │
+  │                                ▼
+  │                         User Answers
+  │                                │
+  │                                ▼
+  │                         /resume-story
+  │                                │
+  │                                ▼
+  │                    Incorporate User Response
+  │                                │
+  │                                ▼
+  │                         Generate Jira Story
+  │
+  └────────────── Yes ─────────────┐
+                                   ▼
+                           Large Feature?
+                              │       │
+                         Small │       │ Large
+                              │       │
+                              └───┬───┘
+                                  ▼
+                       Generate Jira Story
+                              (LLM #2)
+                                  │
+                                  ▼
+                    StoryGenerationResult
+                              │
+                              ▼
+                       FastAPI Response
+                              │
+                              ▼
+                       React Frontend
+                              │
+                              ▼
+                    Requirements + Stories
+                              │
+                              ▼
+                       Human Review / Edit
+                              │
+                              ▼
+                            Approve
+
+
+
 
 ## Project structure
 jira-story-generator/
@@ -165,6 +164,11 @@ jira-story-generator/
 │
 ├── .gitignore
 └── README.md
+
+
+
+
+
 
 ## Architecture diagram
 ```mermaid
