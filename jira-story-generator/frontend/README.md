@@ -167,7 +167,8 @@ jira-story-generator/
 └── README.md
 
 ## Architecture diagram
-fflowchart TD
+```mermaid
+flowchart TD
 
     USER["User"]
 
@@ -240,3 +241,4 @@ fflowchart TD
     RESULT --> FRONTEND
 
     FRONTEND --> USER
+```
