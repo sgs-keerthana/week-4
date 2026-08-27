@@ -63,32 +63,87 @@ The application analyzes requirements, detects missing information, asks clarifi
 ## Human-in-the-Loop
 - When clarification is required, LangGraph uses 'interrupt()' to pause the workflow. The user provides the missing information through the UI, and the workflow resumes using the same thread ID through '/resume-story'.
 
+## Workflow
+1.User Input - User enters a natural-language feature requirement in the React frontend.
 
-## Project structure
-jira-story-generator/
-│
-├── backend/
-│   ├── app/
-│   │   ├── api.py
-│   │   ├── graph.py
-│   │   ├── prompts.py
-│   │   ├── schemas.py
-│   │   └── model.py
-│   └── requirements.txt
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── FeatureInput.jsx
-│   │   │   ├── Clarification.jsx
-│   │   │   ├── RequirementsResult.jsx
-│   │   │   └── StoryResult.jsx
-│   │   └── App.jsx
-│   └── package.json
-│
-├── .gitignore
-└── README.md
+2.API Request - React sends the feature idea to the FastAPI backend using POST /generate-story.
 
+3.Requirements Analysis — LLM #1
+
+4.Requirement completeness Check - if information is missing means, workflow generates a clarification question.
+
+5.Human clarification - the user provides the missing information & react sends the response through POST/resume-story.
+
+6.Resume workflow - users clarification response is incorporated into the feature requirements.
+
+7.Feature classification - The system determines whether the feature is a small or large feature.
+
+8.Jira story generation - Generates Jira summary, description, user story, acceptance criteria, functional 
+requirements, technical considerations, subtasks, and story points.
+
+9.Structured validation - Pydantic validates the generated StoryGenerationResult.
+
+10.Response - React displays the result for human review and editing.
+
+## Example
+Input:
+Support agents should be able to search previous customer
+orders using an order ID so they can answer customer queries faster.
+## Requirement Analysis
+Actor:
+Support agents
+
+Feature:
+Search previous customer orders using an order ID
+
+Business Value:
+Answer customer queries faster
+
+Technical Context:
+Existing Order API
+
+Implementation Area:
+Search functionality
+
+Large Feature:
+No
+
+Requirements Complete:
+Yes
+
+## Generated Jira Story
+Summary
+
+Support agents can search previous customer orders using an order ID
+
+User Story
+
+As a Support agent, I want to search previous customer orders using an order ID, so that I can answer customer queries faster.
+
+Acceptance Criteria
+
+The system returns the customer order associated with the specified order ID.
+The system displays an appropriate error message when an invalid order ID is provided.
+The system returns an empty result when no order exists for the specified order ID.
+
+Functional Requirements
+
+Implement order search using the order ID.
+Use the existing Order API to retrieve order information.
+
+Technical Considerations
+
+Integrate with the existing Order API.
+
+Suggested Subtasks
+
+Implement order search functionality.
+Integrate the existing Order API.
+Test valid and invalid order ID scenarios.
+
+Story Points
+
+5
 
 ## Architecture diagram
 ```mermaid
