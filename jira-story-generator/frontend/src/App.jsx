@@ -138,7 +138,7 @@ function App() {
             <header>
 
                 <h1>
-                    Jira Story Generator
+                    JIRA STORY GENERATOR
                 </h1>
 
                 <p>

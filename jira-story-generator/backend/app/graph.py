@@ -33,6 +33,20 @@ def analyze_requirements(state: JiraStoryState):
     requirements = requirements_chain.invoke({
         "feature_idea": state["feature_idea"]
     })
+    print("BEFORE CORRECTION:", requirements.is_large_feature)
+    print("IMPLEMENTATION AREAS:", requirements.implementation_areas)
+    if requirements.missing_information:
+        requirements.is_complete=False
+        if not requirements.clarification_question:
+            requirements.clarification_question=(
+                requirements.missing_information[0]
+            )
+    if len(requirements.implementation_areas)>=2:
+        requirements.is_large_feature=True
+    elif len(requirements.implementation_areas)<=1:
+        requirements.is_large_feature=False
+
+        
     print("\nRequirements:")
     print(requirements)
     return{
