@@ -1,0 +1,182 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #1b1c1d;
+}
+
+button,
+textarea {
+    font: inherit;
+}
+
+.app {
+    min-height: 100vh;
+}
+
+header {
+    background: #2d7579;
+    color: white;
+    padding: 45px 20px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0 0 10px;
+    font-size: 36px;
+}
+
+header p {
+    margin: 0;
+    font-size: 17px;
+}
+
+main {
+    width: min(1000px, 92%);
+    margin: 40px auto;
+}
+
+.input-card,
+.clarification-card,
+.result-card,
+.error-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+
+.input-card label {
+    display: block;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+textarea {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    resize: vertical;
+    outline: none;
+}
+
+textarea:focus {
+    border-color: #2563eb;
+}
+
+button {
+    margin-top: 18px;
+    padding: 12px 22px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+}
+
+.clarification-card h2,
+.result-card h2 {
+    margin-top: 0;
+}
+
+.story {
+    margin-top: 25px;
+    padding: 25px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+.story h3 {
+    margin-top: 0;
+    font-size: 23px;
+}
+
+.story h4 {
+    margin-bottom: 8px;
+}
+
+.story ul {
+    padding-left: 22px;
+}
+
+.story li {
+    margin-bottom: 8px;
+}
+
+.user-story {
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.story-points {
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+.decomposition {
+    color: #64748b;
+}
+
+.error-card {
+    text-align: center;
+}
+/* Requirements analysis card */
+.requirements-card {
+    background: white;
+
+    padding: 30px;
+
+    margin-bottom: 30px;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 4px 18px
+        rgba(0, 0, 0, 0.08);
+}
+
+
+/* Individual requirement section */
+.requirement-item {
+    padding: 15px 0;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+
+/* Requirement heading */
+.requirement-item strong {
+    display: block;
+
+    margin-bottom: 6px;
+}
+
+
+/* Requirement text */
+.requirement-item p {
+    margin: 0;
+
+    color: #475569;
+}
+
+
+/* Requirement lists */
+.requirement-item ul {
+    margin-top: 8px;
+
+    padding-left: 20px;
+}
