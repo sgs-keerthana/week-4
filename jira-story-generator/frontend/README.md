@@ -65,7 +65,7 @@ The application analyzes requirements, detects missing information, asks clarifi
 
 ## Workflow
 
- User
+                   User
   │
   ▼
 React Frontend
@@ -136,7 +136,6 @@ Requirements Complete?
                               │
                               ▼
                             Approve
-
 
 
 
