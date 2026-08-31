@@ -3,8 +3,8 @@ from langgraph.types import interrupt
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import StateGraph, START, END
 from typing import TypedDict
-from app.schemas import Requirements, StoryGenerationResult
-from app.prompts import requirements_prompt, jira_story_prompt
+from app.schemas import Requirements, StoryGenerationResult,InputValidation
+from app.prompts import requirements_prompt, jira_story_prompt,input_validation_prompt
 from app.model import requirements_model, story_model
 
 # Shared state used by all Langgraph nodes
@@ -15,7 +15,15 @@ class JiraStoryState(TypedDict, total=False):
     user_response: str
     story_result: StoryGenerationResult
     validation_result: bool
+    validation_result: str
 
+#LLM #0 Validation guardrail
+validation_structured_model=(
+    requirements_model.with_structured_output(InputValidation)
+)
+validation_chain=(
+    input_validation_prompt | validation_structured_model
+)
 # LLM#1 STRUCTURED MODEL
 requirements_structured_model = (requirements_model.with_structured_output(Requirements))
 requirements_chain = (requirements_prompt | requirements_structured_model)
@@ -24,6 +32,18 @@ requirements_chain = (requirements_prompt | requirements_structured_model)
 story_structured_model = (story_model.with_structured_output(StoryGenerationResult))
 story_generation_chain = (jira_story_prompt | story_structured_model)
 
+# Node 0: Validate whether the input is relevant
+def validate_input(state: JiraStoryState):
+    print("\n[Node] Validate Input")
+    validation = validation_chain.invoke({
+        "feature_idea": state["feature_idea"]
+    })
+    print("VALID:",validation.is_valid)
+    print("Reason:",validation.reason)
+    return{
+        "validation_result":validation.is_valid,
+        "validation_reason":validation.reason
+    }
 
 # Node 1: Analyze the user's feature requirements
 def analyze_requirements(state: JiraStoryState):
@@ -96,20 +116,38 @@ def generate_story(state:JiraStoryState):
         "story_result":story_result
     }
 
+def route_after_validation(state: JiraStoryState):
+    if state["validation_result"]:
+        return "valid"
+    return "invalid"
 # Routing-Decide what happens after completeness check
 def route_after_requirements(state: JiraStoryState):
     #First check whether clarification is required
     if not state["requirements"].is_complete:
         return "clarification"
-
     # Requirement is complete, now check feature size
     if state["requirements"].is_large_feature:
         return "large_feature"
     return "small_feature"
+
+def reject_invalid_input(state: JiraStoryState):
+    print("\n[Node] Invalid Input")
+    return{
+        "validation_result": False
+    }
+
 # Create the Langgraph workflow
 workflow = StateGraph(JiraStoryState)
 
 # Register nodes
+workflow.add_node(
+    "validate_input",
+    validate_input
+)
+workflow.add_node(
+    "reject_invalid_input",
+    reject_invalid_input
+)
 workflow.add_node(
     "analyze_requirements",
     analyze_requirements
@@ -131,17 +169,29 @@ workflow.add_node(
 # start-Analyze requirements
 workflow.add_edge(
     START,
-    "analyze_requirements"
+    "validate_input"
 )
 
 # Route based on completeness and feature size
 workflow.add_conditional_edges(
+    "validate_input",
+    route_after_validation,
+    {
+        "valid": "analyze_requirements",
+        "invalid":"reject_invalid_input"
+    }
+)
+workflow.add_edge(
+    "reject_invalid_input",
+    END
+)
+workflow.add_conditional_edges(
     "analyze_requirements",
     route_after_requirements,
     {
-        "clarification":"clarification",
-        "small_feature":"generate_story",
-        "large_feature":"generate_story"
+        "clarification": "clarification",
+        "small_feature": "generate_story",
+        "large_feature": "generate_story"
     }
 )
 workflow.add_edge(

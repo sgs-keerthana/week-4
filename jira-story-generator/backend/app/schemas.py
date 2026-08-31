@@ -37,3 +37,6 @@ class StoryGenerationResult(BaseModel):
     decomposition_summary: str
     stories: list[JiraStory]
 
+class InputValidation(BaseModel):
+    is_valid: bool
+    reason: str

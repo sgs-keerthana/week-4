@@ -1,92 +1,166 @@
-// Component responsible for displaying
-// the requirements extracted by LLM #1.
-
 function RequirementsResult({ requirements }) {
 
-    // Do not render anything if requirements
-    // have not been received yet.
     if (!requirements) {
         return null;
     }
 
     return (
-        <div className="requirements-card">
+        <section className="requirements-card">
 
-            <h2>
-                Requirements Analysis
-            </h2>
+            <div className="section-heading">
 
-            <div className="requirement-item">
-                <strong>Actor</strong>
-                <p>
-                    {requirements.actor}
-                </p>
+                <div>
+                    <span className="eyebrow">
+                        LLM #1 OUTPUT
+                    </span>
+
+                    <h2>
+                        Requirements Analysis
+                    </h2>
+
+                    <p>
+                        Extracted and validated requirements
+                        from the feature description.
+                    </p>
+                </div>
+
+                <div className="analysis-badge">
+                    ✓ ANALYZED
+                </div>
+
             </div>
 
-            <div className="requirement-item">
-                <strong>Feature</strong>
-                <p>
-                    {requirements.feature}
-                </p>
+
+            <div className="requirements-grid">
+
+                <div className="requirement-box">
+
+                    <span>ACTOR</span>
+
+                    <strong>
+                        {requirements.actor || "Not specified"}
+                    </strong>
+
+                </div>
+
+
+                <div className="requirement-box">
+
+                    <span>FEATURE</span>
+
+                    <strong>
+                        {requirements.feature || "Not specified"}
+                    </strong>
+
+                </div>
+
+
+                <div className="requirement-box">
+
+                    <span>BUSINESS VALUE</span>
+
+                    <strong>
+                        {requirements.business_value ||
+                            "Not specified"}
+                    </strong>
+
+                </div>
+
+
+                <div className="requirement-box">
+
+                    <span>TECHNICAL CONTEXT</span>
+
+                    <strong>
+                        {requirements.technical_context ||
+                            "Not specified"}
+                    </strong>
+
+                </div>
+
             </div>
 
-            <div className="requirement-item">
-                <strong>Business Value</strong>
-                <p>
-                    {requirements.business_value}
-                </p>
+
+            <div className="requirement-status-row">
+
+                <div className="status-item">
+
+                    <span className="status-dot"></span>
+
+                    <div>
+                        <span>Feature Size</span>
+
+                        <strong>
+                            {requirements.is_large_feature
+                                ? "Large Feature"
+                                : "Single Story"}
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div className="status-item">
+
+                    <span className="status-dot"></span>
+
+                    <div>
+                        <span>Completeness</span>
+
+                        <strong>
+                            {requirements.is_complete
+                                ? "Complete"
+                                : "Incomplete"}
+                        </strong>
+                    </div>
+
+                </div>
+
             </div>
 
-            <div className="requirement-item">
-                <strong>Technical Context</strong>
-                <p>
-                    {requirements.technical_context}
-                </p>
-            </div>
 
-            <div className="requirement-item">
-                <strong>Large Feature</strong>
-                <p>
-                    {requirements.is_large_feature
-                        ? "Yes"
-                        : "No"}
-                </p>
-            </div>
+            <div className="list-section">
 
-            <div className="requirement-item">
-                <strong>Requirements Complete</strong>
-                <p>
-                    {requirements.is_complete
-                        ? "Yes"
-                        : "No"}
-                </p>
-            </div>
-
-            <div className="requirement-item">
-                <strong>Implementation Areas</strong>
+                <h3>
+                    Implementation Areas
+                </h3>
 
                 {requirements.implementation_areas?.length > 0 ? (
-                    <ul>
+
+                    <div className="tag-list">
+
                         {requirements.implementation_areas.map(
                             (area, index) => (
-                                <li key={index}>
+                                <span
+                                    className="tag"
+                                    key={index}
+                                >
                                     {area}
-                                </li>
+                                </span>
                             )
                         )}
-                    </ul>
+
+                    </div>
+
                 ) : (
-                    <p>
+                    <p className="muted">
                         None specified
                     </p>
                 )}
+
             </div>
 
-            <div className="requirement-item">
-                <strong>Missing Information</strong>
 
-                {requirements.missing_information?.length > 0 ? (
+            {requirements.missing_information?.length > 0 && (
+
+                <div className="missing-section">
+
+                    <h3>
+                        Missing Information
+                    </h3>
+
                     <ul>
+
                         {requirements.missing_information.map(
                             (item, index) => (
                                 <li key={index}>
@@ -94,15 +168,14 @@ function RequirementsResult({ requirements }) {
                                 </li>
                             )
                         )}
-                    </ul>
-                ) : (
-                    <p>
-                        None
-                    </p>
-                )}
-            </div>
 
-        </div>
+                    </ul>
+
+                </div>
+
+            )}
+
+        </section>
     );
 }
 

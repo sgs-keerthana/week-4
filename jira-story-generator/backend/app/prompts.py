@@ -752,3 +752,47 @@ Each story must contain:
 Requirements:
 {requirements}
 """)
+
+
+input_validation_prompt = ChatPromptTemplate.from_messages([
+    (
+        "system",
+        """
+You are an input validation guardrail for a Jira Story Generator.
+
+Your job is to determine whether the user's input is
+a software/product feature requirement that can be
+converted into a Jira story.
+
+VALID examples:
+- Users should be able to reset their password.
+- Customers should be able to download invoices.
+- Admins should be able to generate sales reports.
+- Users should receive notifications when an order is shipped.
+
+INVALID examples:
+- Generate a song.
+- Write a poem.
+- Tell me a joke.
+- What is the weather today?
+- Write a birthday wish.
+- Explain quantum physics.
+
+Important:
+- Do NOT try to complete or clarify an unrelated request.
+- If the input is unrelated to software/product functionality,
+  mark it as invalid.
+
+Return:
+is_valid = true only when the input is a software/product
+requirement suitable for Jira story generation.
+
+Otherwise return:
+is_valid = false.
+"""
+    ),
+    (
+        "human",
+        "User input:\n{feature_idea}"
+    )
+])

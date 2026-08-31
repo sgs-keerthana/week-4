@@ -5,36 +5,27 @@ import StoryResult from "./components/StoryResult";
 import RequirementsResult from "./components/RequirementsResult";
 
 function App() {
-    // Stores the feature description entered by the user.
     const [featureIdea, setFeatureIdea] = useState("");
-
     const [status, setStatus] = useState("idle");
-
     const [question, setQuestion] = useState("");
-
     const [response, setResponse] = useState("");
     const [requirements, setRequirements] = useState(null);
-
     const [storyResult, setStoryResult] = useState(null);
-
     const [loading, setLoading] = useState(false);
-    // Creates a unique thread ID for this workflow.
+
     const [threadId] = useState(
         `jira-story-${Date.now()}`
     );
 
-    // Generate Jira Story
     const generateStory = async () => {
-        // Prevent sending an empty feature
         if (!featureIdea.trim()) {
             return;
         }
-        // Show loading state.
+
         setLoading(true);
         setStoryResult(null);
 
         try {
-            // Send the feature to the FastAPI backend
             const result = await fetch(
                 "http://127.0.0.1:8000/generate-story",
                 {
@@ -48,41 +39,36 @@ function App() {
                     })
                 }
             );
-            // Convert the backend response into Javascript
-            const data = await result.json();
-            console.log("API RESPONSE:",data);
-            // Clarification required
-            if (data.status === "clarification_required") {
 
+            const data = await result.json();
+
+            console.log("API RESPONSE:", data);
+
+            if (data.status === "clarification_required") {
                 setQuestion(data.question);
                 setStatus("clarification");
-            // Story generation completed
             } else if (data.status === "completed") {
                 setRequirements(data.requirements);
                 setStoryResult(data.story_result);
                 setStatus("completed");
-
-            } else {
-
+            } else if (data.status === "invalid_input") {
+                setStatus("invalid");
+            }
+            else {
                 setStatus("error");
-
             }
 
         } catch (error) {
-
             console.error(error);
             setStatus("error");
 
         } finally {
-
             setLoading(false);
-
         }
     };
 
 
     const submitClarification = async () => {
-
         if (!response.trim()) {
             return;
         }
@@ -90,7 +76,6 @@ function App() {
         setLoading(true);
 
         try {
-            // Resume the interrupted Langgraph workflow
             const result = await fetch(
                 "http://127.0.0.1:8000/resume-story",
                 {
@@ -108,63 +93,128 @@ function App() {
             const data = await result.json();
 
             if (data.status === "completed") {
-
+                setRequirements(data.requirements);
                 setStoryResult(data.story_result);
                 setStatus("completed");
-
             } else {
-
                 setStatus("error");
-
             }
 
         } catch (error) {
-
             console.error(error);
             setStatus("error");
 
         } finally {
-
             setLoading(false);
-
         }
     };
 
-    // Render UI
-    return (
 
+    const createNewStory = () => {
+        setFeatureIdea("");
+        setQuestion("");
+        setResponse("");
+        setRequirements(null);
+        setStoryResult(null);
+        setStatus("idle");
+    };
+
+
+    return (
         <div className="app">
 
-            <header>
+            {/* HEADER */}
+            <header className="app-header">
 
-                <h1>
-                    JIRA STORY GENERATOR
-                </h1>
+                <div className="header-content">
 
-                <p>
-                    Transform feature requirements into
-                    implementation-ready Jira stories.
-                </p>
+                    <div className="brand">
+                        <div className="brand-icon">
+                            ✦
+                        </div>
+
+                        <div>
+                            <h1>Jira Story Generator</h1>
+
+                            <p>
+                                Transform feature ideas into
+                                implementation-ready Jira stories.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="header-badge">
+                        AI POWERED
+                    </div>
+
+                </div>
 
             </header>
 
 
+            {/* MAIN CONTENT */}
             <main>
 
-                {status === "idle" && (
+                {/* Progress */}
+                {status !== "idle" && status !== "error" && (
+                    <div className="progress-bar">
 
+                        <div
+                            className={
+                                status === "completed"
+                                    ? "progress-step active"
+                                    : "progress-step current"
+                            }
+                        >
+                            <span>1</span>
+                            Analyze
+                        </div>
+
+                        <div className="progress-line"></div>
+
+                        <div
+                            className={
+                                status === "clarification"
+                                    ? "progress-step current"
+                                    : status === "completed"
+                                        ? "progress-step active"
+                                        : "progress-step"
+                            }
+                        >
+                            <span>2</span>
+                            Clarify
+                        </div>
+
+                        <div className="progress-line"></div>
+
+                        <div
+                            className={
+                                status === "completed"
+                                    ? "progress-step active"
+                                    : "progress-step"
+                            }
+                        >
+                            <span>3</span>
+                            Generate
+                        </div>
+
+                    </div>
+                )}
+
+
+                {/* INPUT */}
+                {status === "idle" && (
                     <FeatureInput
                         featureIdea={featureIdea}
                         setFeatureIdea={setFeatureIdea}
                         onGenerate={generateStory}
                         loading={loading}
                     />
-
                 )}
 
 
+                {/* CLARIFICATION */}
                 {status === "clarification" && (
-
                     <Clarification
                         question={question}
                         response={response}
@@ -172,36 +222,63 @@ function App() {
                         onSubmit={submitClarification}
                         loading={loading}
                     />
-
                 )}
 
 
+                {/* COMPLETED */}
                 {status === "completed" && (
+                    <>
+                        <div className="success-banner">
+                            <div className="success-icon">
+                                ✓
+                            </div>
 
-                  <>
-                    <RequirementsResult
-                      requirements={requirements}
-                    />
+                            <div>
+                                <strong>
+                                    Jira story generated successfully
+                                </strong>
 
-                    <StoryResult
-                        result={storyResult}
-                    />
-                  </>
+                                <p>
+                                    Your requirements have been analyzed
+                                    and converted into Jira-ready stories.
+                                </p>
+                            </div>
 
+                            <button
+                                className="new-story-button"
+                                onClick={createNewStory}
+                            >
+                                + New Story
+                            </button>
+                        </div>
+
+                        <RequirementsResult
+                            requirements={requirements}
+                        />
+
+                        <StoryResult
+                            result={storyResult}
+                        />
+                    </>
                 )}
 
 
+                {/* ERROR */}
                 {status === "error" && (
-
                     <div className="error-card">
+
+                        <div className="error-icon">
+                            !
+                        </div>
 
                         <h2>
                             Something went wrong
                         </h2>
 
                         <p>
-                            Please check that the backend
-                            server is running and try again.
+                            We couldn't generate your Jira story.
+                            Please make sure the backend server is running
+                            and try again.
                         </p>
 
                         <button
@@ -211,10 +288,30 @@ function App() {
                         </button>
 
                     </div>
-
                 )}
-
+                {status === "invalid" &&(
+                    <div className="error-card">
+                        <h2>
+                            Invalid Feature Request
+                        </h2>
+                        <p>
+                            Please provide a software feature or
+                            product requirement that can be converted
+                            into a Jira story
+                        </p>
+                        <button
+                            onClick={() => setStatus("idle")}
+                        >
+                            Try Again
+                        </button>
+                    </div>
+                )}
             </main>
+
+            <footer>
+                <span>Jira Story Generator</span>
+                <span>AI-assisted requirement analysis</span>
+            </footer>
 
         </div>
     );

@@ -97,6 +97,16 @@ def resume_story(request: ResumeRequest):
         ),
         config=config
     )
+    if result.get("validation_result") is False:
+        return{
+            "status": "invalid_input",
+            "message": (
+                "Please provide a software feature "
+                "or product requirement that can be "
+                "converted into a Jira story."
+            ),
+            "reason" : result.get("validation_reason")
+        }
 
     #Check whether the final Jira story was generated
     if "story_result" in result:

@@ -2,24 +2,23 @@ import { useState } from "react";
 
 function StoryResult({ result }) {
 
-    // If there is no generated result,
-    // do not display anything.
     if (!result) {
         return null;
     }
 
-    // Stores the edited version of all Jira stories.
     const [stories, setStories] = useState(
         result.stories || []
     );
 
-    // Stores which stories have been approved.
     const [approvedStories, setApprovedStories] = useState([]);
 
-    // ---------------------------------------------------------
-    // Update a normal text field
-    // ---------------------------------------------------------
-    const updateField = (storyIndex, field, value) => {
+
+    // Update normal fields
+    const updateField = (
+        storyIndex,
+        field,
+        value
+    ) => {
 
         setStories((currentStories) =>
             currentStories.map((story, index) => {
@@ -37,14 +36,7 @@ function StoryResult({ result }) {
     };
 
 
-    // ---------------------------------------------------------
-    // Update an array field
-    // Example:
-    // acceptance_criteria
-    // functional_requirements
-    // technical_considerations
-    // suggested_subtasks
-    // ---------------------------------------------------------
+    // Update array fields
     const updateArrayItem = (
         storyIndex,
         field,
@@ -59,7 +51,9 @@ function StoryResult({ result }) {
                     return story;
                 }
 
-                const updatedArray = [...story[field]];
+                const updatedArray = [
+                    ...(story[field] || [])
+                ];
 
                 updatedArray[itemIndex] = value;
 
@@ -72,9 +66,7 @@ function StoryResult({ result }) {
     };
 
 
-    // ---------------------------------------------------------
-    // Approve a story
-    // ---------------------------------------------------------
+    // Approve story
     const approveStory = (storyIndex) => {
 
         setApprovedStories((currentApproved) => {
@@ -91,145 +83,125 @@ function StoryResult({ result }) {
     };
 
 
-    // ---------------------------------------------------------
-    // Check whether a particular story is approved
-    // ---------------------------------------------------------
     const isApproved = (storyIndex) => {
-
         return approvedStories.includes(storyIndex);
-
     };
 
 
     return (
 
-        <div className="result-card">
+        <section className="result-card">
 
-            <h2>
-                Generated Jira Stories
-            </h2>
+            {/* =========================
+                SECTION HEADER
+            ========================= */}
+
+            <div className="section-heading">
+
+                <div>
+
+                    <span className="eyebrow">
+                        LLM #2 OUTPUT
+                    </span>
+
+                    <h2>
+                        Generated Jira Stories
+                    </h2>
+
+                    <p>
+                        Review, edit and approve the
+                        generated Jira stories.
+                    </p>
+
+                </div>
+
+                <div className="story-count">
+
+                    {stories.length}
+                    {stories.length === 1
+                        ? " STORY"
+                        : " STORIES"}
+
+                </div>
+
+            </div>
 
 
-            {/* -------------------------------------------------
-                Decomposition summary
-            -------------------------------------------------- */}
-            <p className="decomposition">
-                {result.decomposition_summary}
-            </p>
+            {/* =========================
+                DECOMPOSITION SUMMARY
+            ========================= */}
+
+            <div className="decomposition-box">
+
+                <span>
+                    DECOMPOSITION SUMMARY
+                </span>
+
+                <p>
+                    {result.decomposition_summary}
+                </p>
+
+            </div>
 
 
-            {/* -------------------------------------------------
-                Display every generated Jira story
-            -------------------------------------------------- */}
+            {/* =========================
+                STORIES
+            ========================= */}
+
             {stories.map((story, storyIndex) => (
 
-                <div
+                <article
                     className="story"
                     key={storyIndex}
                 >
 
-                    {/* =========================================
+                    {/* STORY HEADER */}
+
+                    <div className="story-header">
+
+                        <div className="story-number">
+                            {String(storyIndex + 1).padStart(2, "0")}
+                        </div>
+
+                        <div className="story-title-area">
+
+                            <span>
+                                JIRA STORY
+                            </span>
+
+                            <h3>
+                                {story.Summary || "Untitled Story"}
+                            </h3>
+
+                        </div>
+
+                        {isApproved(storyIndex) && (
+                            <div className="approved-badge">
+                                ✓ APPROVED
+                            </div>
+                        )}
+
+                    </div>
+
+
+                    {/* =========================
                         SUMMARY
-                    ========================================== */}
+                    ========================= */}
 
-                    <h4>
-                        Summary
-                    </h4>
-
-                    <input
-                        type="text"
-                        value={story.Summary || ""}
-                        disabled={isApproved(storyIndex)}
-                        onChange={(event) =>
-                            updateField(
-                                storyIndex,
-                                "Summary",
-                                event.target.value
-                            )
-                        }
-                    />
-
-
-                    {/* =========================================
-                        DESCRIPTION
-                    ========================================== */}
-
-                    <h4>
-                        Description
-                    </h4>
-
-                    <textarea
-                        value={story.description || ""}
-                        disabled={isApproved(storyIndex)}
-                        onChange={(event) =>
-                            updateField(
-                                storyIndex,
-                                "description",
-                                event.target.value
-                            )
-                        }
-                    />
-
-
-                    {/* =========================================
-                        USER STORY
-                    ========================================== */}
-
-                    <div className="user-story">
-
-                        <h4>
-                            User Story
-                        </h4>
-
+                    <div className="field-group">
 
                         <label>
-                            As a
+                            Summary
                         </label>
 
                         <input
                             type="text"
-                            value={story.as_a || ""}
+                            value={story.Summary || ""}
                             disabled={isApproved(storyIndex)}
                             onChange={(event) =>
                                 updateField(
                                     storyIndex,
-                                    "as_a",
-                                    event.target.value
-                                )
-                            }
-                        />
-
-
-                        <label>
-                            I want
-                        </label>
-
-                        <input
-                            type="text"
-                            value={story.i_want || ""}
-                            disabled={isApproved(storyIndex)}
-                            onChange={(event) =>
-                                updateField(
-                                    storyIndex,
-                                    "i_want",
-                                    event.target.value
-                                )
-                            }
-                        />
-
-
-                        <label>
-                            So that
-                        </label>
-
-                        <input
-                            type="text"
-                            value={story.so_that || ""}
-                            disabled={isApproved(storyIndex)}
-                            onChange={(event) =>
-                                updateField(
-                                    storyIndex,
-                                    "so_that",
+                                    "Summary",
                                     event.target.value
                                 )
                             }
@@ -238,149 +210,230 @@ function StoryResult({ result }) {
                     </div>
 
 
-                    {/* =========================================
+                    {/* =========================
+                        DESCRIPTION
+                    ========================= */}
+
+                    <div className="field-group">
+
+                        <label>
+                            Description
+                        </label>
+
+                        <textarea
+                            rows={4}
+                            value={story.description || ""}
+                            disabled={isApproved(storyIndex)}
+                            onChange={(event) =>
+                                updateField(
+                                    storyIndex,
+                                    "description",
+                                    event.target.value
+                                )
+                            }
+                        />
+
+                    </div>
+
+
+                    {/* =========================
+                        USER STORY
+                    ========================= */}
+
+                    <div className="user-story">
+
+                        <div className="user-story-heading">
+
+                            <span className="user-story-icon">
+                                👤
+                            </span>
+
+                            <div>
+
+                                <h4>
+                                    User Story
+                                </h4>
+
+                                <p>
+                                    Standard Jira user story format
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div className="user-story-grid">
+
+                            <div className="field-group">
+
+                                <label>
+                                    As a
+                                </label>
+
+                                <input
+                                    type="text"
+                                    value={story.as_a || ""}
+                                    disabled={isApproved(storyIndex)}
+                                    onChange={(event) =>
+                                        updateField(
+                                            storyIndex,
+                                            "as_a",
+                                            event.target.value
+                                        )
+                                    }
+                                />
+
+                            </div>
+
+
+                            <div className="field-group">
+
+                                <label>
+                                    I want
+                                </label>
+
+                                <input
+                                    type="text"
+                                    value={story.i_want || ""}
+                                    disabled={isApproved(storyIndex)}
+                                    onChange={(event) =>
+                                        updateField(
+                                            storyIndex,
+                                            "i_want",
+                                            event.target.value
+                                        )
+                                    }
+                                />
+
+                            </div>
+
+
+                            <div className="field-group full-width">
+
+                                <label>
+                                    So that
+                                </label>
+
+                                <input
+                                    type="text"
+                                    value={story.so_that || ""}
+                                    disabled={isApproved(storyIndex)}
+                                    onChange={(event) =>
+                                        updateField(
+                                            storyIndex,
+                                            "so_that",
+                                            event.target.value
+                                        )
+                                    }
+                                />
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {/* =========================
                         ACCEPTANCE CRITERIA
-                    ========================================== */}
+                    ========================= */}
 
-                    <h4>
-                        Acceptance Criteria
-                    </h4>
-
-                    {story.acceptance_criteria?.map(
-                        (item, itemIndex) => (
-
-                            <textarea
-                                key={itemIndex}
-                                value={item}
-                                disabled={isApproved(storyIndex)}
-                                onChange={(event) =>
-                                    updateArrayItem(
-                                        storyIndex,
-                                        "acceptance_criteria",
-                                        itemIndex,
-                                        event.target.value
-                                    )
-                                }
-                            />
-
-                        )
-                    )}
-
-
-                    {/* =========================================
-                        FUNCTIONAL REQUIREMENTS
-                    ========================================== */}
-
-                    <h4>
-                        Functional Requirements
-                    </h4>
-
-                    {story.functional_requirements?.map(
-                        (item, itemIndex) => (
-
-                            <textarea
-                                key={itemIndex}
-                                value={item}
-                                disabled={isApproved(storyIndex)}
-                                onChange={(event) =>
-                                    updateArrayItem(
-                                        storyIndex,
-                                        "functional_requirements",
-                                        itemIndex,
-                                        event.target.value
-                                    )
-                                }
-                            />
-
-                        )
-                    )}
-
-
-                    {/* =========================================
-                        TECHNICAL CONSIDERATIONS
-                    ========================================== */}
-
-                    <h4>
-                        Technical Considerations
-                    </h4>
-
-                    {story.technical_considerations?.map(
-                        (item, itemIndex) => (
-
-                            <textarea
-                                key={itemIndex}
-                                value={item}
-                                disabled={isApproved(storyIndex)}
-                                onChange={(event) =>
-                                    updateArrayItem(
-                                        storyIndex,
-                                        "technical_considerations",
-                                        itemIndex,
-                                        event.target.value
-                                    )
-                                }
-                            />
-
-                        )
-                    )}
-
-
-                    {/* =========================================
-                        SUGGESTED SUBTASKS
-                    ========================================== */}
-
-                    <h4>
-                        Suggested Subtasks
-                    </h4>
-
-                    {story.suggested_subtasks?.map(
-                        (item, itemIndex) => (
-
-                            <textarea
-                                key={itemIndex}
-                                value={item}
-                                disabled={isApproved(storyIndex)}
-                                onChange={(event) =>
-                                    updateArrayItem(
-                                        storyIndex,
-                                        "suggested_subtasks",
-                                        itemIndex,
-                                        event.target.value
-                                    )
-                                }
-                            />
-
-                        )
-                    )}
-
-
-                    {/* =========================================
-                        STORY POINTS
-                    ========================================== */}
-
-                    <h4>
-                        Story Points
-                    </h4>
-
-                    <input
-                        type="number"
-                        min="1"
-                        max="8"
-                        value={story.story_points || ""}
+                    <StoryListField
+                        title="Acceptance Criteria"
+                        description="Conditions that must be satisfied for the story to be accepted."
+                        field="acceptance_criteria"
+                        items={story.acceptance_criteria}
+                        storyIndex={storyIndex}
                         disabled={isApproved(storyIndex)}
-                        onChange={(event) =>
-                            updateField(
-                                storyIndex,
-                                "story_points",
-                                Number(event.target.value)
-                            )
-                        }
+                        updateArrayItem={updateArrayItem}
                     />
 
 
-                    {/* =========================================
-                        APPROVE BUTTON
-                    ========================================== */}
+                    {/* =========================
+                        FUNCTIONAL REQUIREMENTS
+                    ========================= */}
+
+                    <StoryListField
+                        title="Functional Requirements"
+                        description="What the system must do."
+                        field="functional_requirements"
+                        items={story.functional_requirements}
+                        storyIndex={storyIndex}
+                        disabled={isApproved(storyIndex)}
+                        updateArrayItem={updateArrayItem}
+                    />
+
+
+                    {/* =========================
+                        TECHNICAL CONSIDERATIONS
+                    ========================= */}
+
+                    <StoryListField
+                        title="Technical Considerations"
+                        description="Technical constraints or implementation considerations."
+                        field="technical_considerations"
+                        items={story.technical_considerations}
+                        storyIndex={storyIndex}
+                        disabled={isApproved(storyIndex)}
+                        updateArrayItem={updateArrayItem}
+                    />
+
+
+                    {/* =========================
+                        SUGGESTED SUBTASKS
+                    ========================= */}
+
+                    <StoryListField
+                        title="Suggested Subtasks"
+                        description="Possible implementation tasks for this story."
+                        field="suggested_subtasks"
+                        items={story.suggested_subtasks}
+                        storyIndex={storyIndex}
+                        disabled={isApproved(storyIndex)}
+                        updateArrayItem={updateArrayItem}
+                    />
+
+
+                    {/* =========================
+                        STORY POINTS
+                    ========================= */}
+
+                    <div className="story-points-section">
+
+                        <div>
+
+                            <label>
+                                Story Points
+                            </label>
+
+                            <p>
+                                Estimated effort for this story
+                            </p>
+
+                        </div>
+
+                        <input
+                            type="number"
+                            min="1"
+                            max="8"
+                            value={story.story_points || ""}
+                            disabled={isApproved(storyIndex)}
+                            onChange={(event) =>
+                                updateField(
+                                    storyIndex,
+                                    "story_points",
+                                    Number(event.target.value)
+                                )
+                            }
+                        />
+
+                    </div>
+
+
+                    {/* =========================
+                        APPROVAL
+                    ========================= */}
 
                     <div className="approval-section">
 
@@ -392,25 +445,104 @@ function StoryResult({ result }) {
                                     approveStory(storyIndex)
                                 }
                             >
-                                Approve Story
+                                ✓ Approve Story
                             </button>
 
                         ) : (
 
                             <div className="approved-message">
-                                ✅ Story Approved
+                                <span>✓</span>
+                                Story Approved
                             </div>
 
                         )}
 
                     </div>
 
-                </div>
+                </article>
 
             ))}
+
+        </section>
+    );
+}
+
+
+/* =========================================================
+   REUSABLE LIST FIELD
+========================================================= */
+
+function StoryListField({
+    title,
+    description,
+    field,
+    items,
+    storyIndex,
+    disabled,
+    updateArrayItem
+}) {
+
+    return (
+
+        <div className="story-list-section">
+
+            <div className="list-header">
+
+                <div>
+
+                    <h4>
+                        {title}
+                    </h4>
+
+                    <p>
+                        {description}
+                    </p>
+
+                </div>
+
+                <span className="item-count">
+                    {items?.length || 0}
+                </span>
+
+            </div>
+
+
+            <div className="list-items">
+
+                {items?.map((item, itemIndex) => (
+
+                    <div
+                        className="list-item"
+                        key={itemIndex}
+                    >
+
+                        <span className="item-number">
+                            {itemIndex + 1}
+                        </span>
+
+                        <textarea
+                            rows={2}
+                            value={item}
+                            disabled={disabled}
+                            onChange={(event) =>
+                                updateArrayItem(
+                                    storyIndex,
+                                    field,
+                                    itemIndex,
+                                    event.target.value
+                                )
+                            }
+                        />
+
+                    </div>
+
+                ))}
+
+            </div>
 
         </div>
     );
 }
+
 
 export default StoryResult;
